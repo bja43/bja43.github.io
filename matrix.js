@@ -1,7 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Matrix = void 0;
-class Matrix {
+export class Matrix {
+    rows;
+    cols;
+    data;
     constructor(rows, cols, data) {
         this.rows = rows;
         this.cols = cols;
@@ -76,6 +76,30 @@ class Matrix {
         }
         return out;
     }
+    matadd(that) {
+        if (this.rows !== that.rows || this.cols !== that.cols) {
+            new Error("Dimension mismatch");
+        }
+        const out = new Matrix(this.rows, this.cols);
+        if (this.data !== undefined && that.data !== undefined && out.data !== undefined) {
+            for (let i = 0; i < out.data.length; i++) {
+                out.data[i] = this.data[i] + that.data[i];
+            }
+        }
+        return out;
+    }
+    matsub(that) {
+        if (this.rows !== that.rows || this.cols !== that.cols) {
+            new Error("Dimension mismatch");
+        }
+        const out = new Matrix(this.rows, this.cols);
+        if (this.data !== undefined && that.data !== undefined && out.data !== undefined) {
+            for (let i = 0; i < out.data.length; i++) {
+                out.data[i] = this.data[i] - that.data[i];
+            }
+        }
+        return out;
+    }
     matmul(that) {
         if (this.cols !== that.rows) {
             new Error("Dimension mismatch");
@@ -100,29 +124,37 @@ class Matrix {
         return out;
     }
     cholesky() {
-        // NEED TO CHECK PD
         if (this.rows !== this.cols) {
             new Error("Matrix not square");
         }
         const L = new Matrix(this.rows, this.rows);
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j <= i; j++) {
-                let sum = 0;
+                let s = 0;
                 for (let k = 0; k < j; k++) {
-                    sum += L.get(i, k) * L.get(j, k);
+                    s += L.get(i, k) * L.get(j, k);
                 }
                 if (i === j) {
-                    L.set(i, j, Math.sqrt(this.get(i, j) - sum));
+                    L.set(i, j, Math.sqrt(this.get(i, i) - s));
                 }
                 else {
-                    L.set(i, j, 1 / L.get(j, j) * (this.get(i, j) - sum));
+                    L.set(i, j, 1 / L.get(j, j) * (this.get(i, j) - s));
                 }
             }
         }
         return L;
     }
     ix(rows, cols) {
-        // NEED A VALIDATION CHECK
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i] < 0 || this.rows < rows[i]) {
+                new Error("Index out of range");
+            }
+        }
+        for (let i = 0; i < cols.length; i++) {
+            if (cols[i] < 0 || this.cols < cols[i]) {
+                new Error("Index out of range");
+            }
+        }
         const out = new Matrix(rows.length, cols.length);
         for (let i = 0; i < rows.length; i++) {
             for (let j = 0; j < cols.length; j++) {
@@ -132,17 +164,39 @@ class Matrix {
         return out;
     }
     inv() {
-        // TODO
-        if (this.rows !== this.cols) {
-            new Error("Matrix not square");
-        }
-        const out = new Matrix(this.rows, this.rows);
         const L = this.cholesky();
-        // for (let i = 0; i < this.rows; i++) {
-        // out.set(i, j);
-        // }
-        return out;
+        const R = new Matrix(L.rows, L.rows);
+        for (let i = 0; i < L.rows; i++) {
+            R.set(i, i, 1 / L.get(i, i));
+            for (let j = 0; j < i; j++) {
+                let s = 0;
+                for (let k = j; k < i; k++) {
+                    s = s + L.get(i, k) * R.get(k, j);
+                }
+                R.set(i, j, -s * R.get(i, i));
+            }
+        }
+        return R.t().matmul(R);
     }
 }
-exports.Matrix = Matrix;
+export function normize(X) {
+    for (let j = 0; j < X.cols; j++) {
+        let sig2 = 0;
+        for (let i = 0; i < X.rows; i++) {
+            sig2 += Math.pow(X.get(i, j), 2);
+        }
+        sig2 = Math.sqrt(sig2 / X.rows);
+        for (let i = 0; i < X.rows; i++) {
+            X.set(i, j, X.get(i, j) / sig2);
+        }
+    }
+}
+export function cov(X) {
+    return X.t().matmul(X);
+}
+export function beta(R, y, Z) {
+    const Zy = R.ix(Z, [y]);
+    const iZZ = R.ix(Z, Z).inv();
+    return iZZ.matmul(Zy);
+}
 //# sourceMappingURL=matrix.js.map

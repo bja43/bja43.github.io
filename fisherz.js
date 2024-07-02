@@ -1,180 +1,5 @@
-"use strict";
-class Matrix {
-    constructor(rows, cols, data) {
-        this.rows = rows;
-        this.cols = cols;
-        if (data !== undefined) {
-            this.data = data;
-        }
-        else {
-            this.data = new Array(rows * cols).fill(0);
-        }
-    }
-    set(i, j, x) {
-        if (i > this.rows) {
-            new Error("Index i out of range");
-        }
-        if (j > this.cols) {
-            new Error("Index j out of range");
-        }
-        if (this.data !== undefined) {
-            this.data[i * this.cols + j] = x;
-        }
-        new Error("Matrix data undefined");
-    }
-    get(i, j) {
-        if (i > this.rows) {
-            new Error("Index i out of range");
-        }
-        if (j > this.cols) {
-            new Error("Index j out of range");
-        }
-        if (this.data !== undefined) {
-            return this.data[i * this.cols + j];
-        }
-        new Error("Matrix data undefined");
-        return 1;
-    }
-    add(x) {
-        const out = new Matrix(this.rows, this.cols);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                out.set(i, j, this.get(i, j) + x);
-            }
-        }
-        return out;
-    }
-    sub(x) {
-        const out = new Matrix(this.rows, this.cols);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                out.set(i, j, this.get(i, j) - x);
-            }
-        }
-        return out;
-    }
-    mul(x) {
-        const out = new Matrix(this.rows, this.cols);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                out.set(i, j, this.get(i, j) * x);
-            }
-        }
-        return out;
-    }
-    div(x) {
-        if (x === 0) {
-            new Error("Divide by zero");
-        }
-        const out = new Matrix(this.rows, this.cols);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                out.set(i, j, this.get(i, j) / x);
-            }
-        }
-        return out;
-    }
-    matmul(that) {
-        if (this.cols !== that.rows) {
-            new Error("Dimension mismatch");
-        }
-        const out = new Matrix(this.rows, that.cols);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < that.cols; j++) {
-                for (let k = 0; k < this.cols; k++) {
-                    out.set(i, j, out.get(i, j) + this.get(i, k) * that.get(k, j));
-                }
-            }
-        }
-        return out;
-    }
-    t() {
-        const out = new Matrix(this.cols, this.rows);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.cols; j++) {
-                out.set(j, i, this.get(i, j));
-            }
-        }
-        return out;
-    }
-    cholesky() {
-        // NEED TO CHECK PD
-        if (this.rows !== this.cols) {
-            new Error("Matrix not square");
-        }
-        const L = new Matrix(this.rows, this.rows);
-        for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j <= i; j++) {
-                let sum = 0;
-                for (let k = 0; k < j; k++) {
-                    sum += L.get(i, k) * L.get(j, k);
-                }
-                if (i === j) {
-                    L.set(i, j, Math.sqrt(this.get(i, j) - sum));
-                }
-                else {
-                    L.set(i, j, 1 / L.get(j, j) * (this.get(i, j) - sum));
-                }
-            }
-        }
-        return L;
-    }
-    ix(rows, cols) {
-        // NEED A VALIDATION CHECK
-        const out = new Matrix(rows.length, cols.length);
-        for (let i = 0; i < rows.length; i++) {
-            for (let j = 0; j < cols.length; j++) {
-                out.set(i, j, this.get(rows[i], cols[j]));
-            }
-        }
-        return out;
-    }
-    inv() {
-        // TODO
-        if (this.rows !== this.cols) {
-            new Error("Matrix not square");
-        }
-        const out = new Matrix(this.rows, this.rows);
-        const L = this.cholesky();
-        // for (let i = 0; i < this.rows; i++) {
-        // out.set(i, j);
-        // }
-        return out;
-    }
-}
-function normize(X) {
-    for (let j = 0; j < X.cols; j++) {
-        let sig2 = 0;
-        for (let i = 0; i < X.rows; i++) {
-            sig2 += Math.pow(X.get(i, j), 2);
-        }
-        sig2 = Math.sqrt(sig2 / X.rows);
-        for (let i = 0; i < X.rows; i++) {
-            X.set(i, j, X.get(i, j) / sig2);
-        }
-    }
-}
-function norminv(x) {
-    return 2.69282508 * Math.log(1 - Math.log(-Math.log(x)) / 3.09104245 - 0.11857259);
-}
-function norm(x, mu, sig2) {
-    return Math.pow(2 * Math.PI * sig2, -0.5) * Math.exp(-Math.pow(x - mu, 2) / (2 * sig2));
-}
-function rnorm(n = 1) {
-    const X = Array.from({ length: n }, () => Math.random());
-    for (let i = 0; i < n; i++) {
-        if (X[i] < 0.5) {
-            X[i] = -norminv(1 - X[i]);
-        }
-        else {
-            X[i] = norminv(X[i]);
-        }
-    }
-    return X;
-}
-function fisherz(r, n, alpha) {
-    return Math.sqrt(n - 3) * Math.abs(Math.atanh(r)) <= norminv(1 - alpha / 2);
-}
+import { Matrix, normize } from "./matrix.js";
+import { norminv, norm, rnorm, fisherz } from "./stats.js";
 function draw_scatter(ctx, X) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -311,6 +136,18 @@ if (X.data !== undefined) {
     draw_scatter(scatter_ctx, Y.matmul(L.t()));
 }
 draw_pdf(pdf_ctx, n, r, a);
+window.addEventListener("resize", function () {
+    scatter_plot.width = scatter_container.clientWidth;
+    scatter_plot.height = 0.8 * scatter_container.clientWidth;
+    signif_pdf.width = pdf_container.clientWidth;
+    signif_pdf.height = 0.8 * pdf_container.clientWidth;
+    if (X.data !== undefined) {
+        Y = new Matrix(n, 2, X.data.slice(0, 2 * n));
+        normize(Y);
+        draw_scatter(scatter_ctx, Y.matmul(L.t()));
+    }
+    draw_pdf(pdf_ctx, n, r, a);
+});
 sample_range.addEventListener('input', function () {
     n = Math.round(Math.pow(10, 1 + (3 / 100) * parseFloat(sample_range.value)));
     sample.textContent = n.toString();
@@ -324,7 +161,7 @@ sample_range.addEventListener('input', function () {
 corr_range.addEventListener('input', function () {
     r = (2 / 100) * parseFloat(corr_range.value) - 1;
     corr.textContent = r.toFixed(2);
-    L = new Matrix(2, 2, [1, r, r, 1]).cholesky();
+    L = new Matrix(2, 2, [1, r, r, 1]); //.cholesky();
     draw_scatter(scatter_ctx, Y.matmul(L.t()));
     draw_pdf(pdf_ctx, n, r, a);
 });

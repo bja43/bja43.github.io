@@ -10,37 +10,36 @@
             color: #E8E8E8;
         }
         .range_container{
-            position: relative;
             width: 100%;
             height: 60px;
         }
         .range-labels {
             display: flex;
             justify-content: space-between;
-            position: relative;
-            width: 78%;
+            width: 68%;
             margin: 1%;
-            margin-bottom: 5%;
+            margin-bottom: 20px;
         }
         .range-input {
-            width: 78%;
+            width: 68%;
             margin: 1%;
         }
         .range-number {
             font-size: larger;
-            width: 15%;
-            margin: 3%;
+            width: 28%;
+            margin: 1%;
+            margin-left: 40px;
         }
         #content {
             position: absolute;
             width: 80%;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            margin-right: 10%;
+            min-width: 500px;
+            left: 10%;
+            top: 0%;
         }
         #canvas-content {
             width: 100%;
-            margin-bottom: 10%;
         }
         #input-content {
             width: 80%;
@@ -48,31 +47,35 @@
         }
         #scatter-container {
             float: left;
-            border-radius: 20px;
+            border-radius: 10px;
             overflow: hidden;
             width: 44%;
             margin: 3%;
+            margin-bottom: 30px;
         }
         #pdf-container {
             float: right;
-            border-radius: 20px;
+            border-radius: 10px;
             overflow: hidden;
             width: 44%;
             margin: 3%;
+            margin-bottom: 30px;
         }
     </style>
 </head>
 
 <body>
     <div id="content">
-        <div id="canvas-content">
-            <div id="scatter-container">
-                <canvas id="scatter_plot"></canvas>
-            </div>
-            <div id="pdf-container">
-                <canvas id="signif_pdf"></canvas>
-            </div>
+        <h1>Fisher's Z Test</h1>
+
+        <div id="scatter-container">
+            <canvas id="scatter_plot"></canvas>
         </div>
+
+        <div id="pdf-container">
+            <canvas id="signif_pdf"></canvas>
+        </div>
+
         <div id="input-content">
             Number of Samples:
             <div class="range-container">
