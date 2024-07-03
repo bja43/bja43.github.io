@@ -27,7 +27,7 @@ function draw_edge(ctx, from, to, beta, padding = RADIUS) {
         const midy = t * from.y + (1 - t) * to.y;
         ctx.fillStyle = "#585858";
         ctx.beginPath();
-        ctx.roundRect(midx - 5, midy - 20, 42, 28);
+        ctx.roundRect(midx - 5, midy - 20, 42, 28, 2);
         ctx.fill();
         ctx.fillStyle = "#181818";
         ctx.font = "18px sans-serif";
