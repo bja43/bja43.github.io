@@ -7,18 +7,38 @@
         body {
             background-color: #242424;
             font-family: sans-serif;
-            color: #E8E8E8;
+            color: #a8a8a8;
         }
-        .range_container{
-            width: 100%;
+        #content {
+            position: absolute;
+            width: 80%;
+            margin-left: 10%;
+            margin-right: 10%;
+            min-width: 900px;
+            top: 0%;
+        }
+        #scatter-container {
+            float: left;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 48%;
+        }
+        #pdf-container {
+            float: right;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 48%;
+        }
+        .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+        }
+        .range-container{
+            width: 80%;
+            margin-left: 10%;
+            margin-right: 10%;
             height: 60px;
-        }
-        .range-labels {
-            display: flex;
-            justify-content: space-between;
-            width: 68%;
-            margin: 1%;
-            margin-bottom: 20px;
         }
         .range-input {
             width: 68%;
@@ -30,36 +50,11 @@
             margin: 1%;
             margin-left: 40px;
         }
-        #content {
-            position: absolute;
-            width: 80%;
-            margin-right: 10%;
-            min-width: 500px;
-            left: 10%;
-            top: 0%;
-        }
-        #canvas-content {
-            width: 100%;
-        }
-        #input-content {
-            width: 80%;
-            margin: 0 auto;
-        }
-        #scatter-container {
-            float: left;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 44%;
-            margin: 3%;
-            margin-bottom: 30px;
-        }
-        #pdf-container {
-            float: right;
-            border-radius: 10px;
-            overflow: hidden;
-            width: 44%;
-            margin: 3%;
-            margin-bottom: 30px;
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 68%;
+            margin: 1%;
         }
     </style>
 </head>
@@ -67,51 +62,30 @@
 <body>
     <div id="content">
         <h1>Fisher's Z Test</h1>
-
-        <div id="scatter-container">
-            <canvas id="scatter_plot"></canvas>
-        </div>
-
-        <div id="pdf-container">
-            <canvas id="signif_pdf"></canvas>
-        </div>
-
-        <div id="input-content">
-            Number of Samples:
-            <div class="range-container">
-                <input type="range" id="sample_range", class="range-input", value="33">
-                <span id="sample", class="range-number"></span>
-                <div class="range-labels">
-                    <span>10</span>
-                    <span>100</span>
-                    <span>1,000</span>
-                    <span>10,000</span>
-                </div>
-            </div>
-
-            Correlation:
-            <div class="range-container">
-                <input type="range" id="corr_range", class="range-input", value="50">
-                <span id="corr", class="range-number"></span>
-                <div class="range-labels">
-                    <span>-1</span>
-                    <span>0</span>
-                    <span>1</span>
-                </div>
-            </div>
-            
-            Alpha:
-            <div class="range-container">
-                <input type="range" id="alpha_range", class="range-input", value="33">
-                <span id="alpha", class="range-number"></span>
-                <div class="range-labels">
-                    <span>0.001</span>
-                    <span>0.01</span>
-                    <span>0.1</span>
-                    <span>1</span>
-                </div>
-            </div>
-        </div>
+        <div class="clearfix">
+            <div style="float: left; border-radius: 10px; width: 48%"> <h3>Data :</h3> </div>
+            <div style="float: right; border-radius: 10px; width: 48%"> <h3>Test z ~ &#x1D4A9; ( 0, (n - 3)&#x207B;&#x00B9; ) where z = tanh&#x207B;&#x00B9; ( &#x03c1; ) :</h3> </div>
+            <div id="scatter-container"> <canvas id="scatter-plot"></canvas> </div>
+            <div id="pdf-container"> <canvas id="signif-pdf"></canvas> </div>
+        </div> <br> <br>
+        <div class="range-container">
+            Number of Samples : <br>
+            <input type="range" id="sample-range", class="range-input", value="33">
+            <span id="sample", class="range-number"></span>
+            <div class="range-labels"> <span>10</span> <span>100</span> <span>1,000</span> <span>10,000</span> </div>
+        </div> <br> <br>
+        <div class="range-container">
+            Correlation : <br>
+            <input type="range" id="corr-range", class="range-input", value="50">
+            <span id="corr", class="range-number"></span>
+            <div class="range-labels"> <span>-1</span> <span>0</span> <span>1</span> </div>
+        </div> <br> <br>
+        <div class="range-container">
+            Alpha : <br>
+            <input type="range" id="alpha-range", class="range-input", value="33">
+            <span id="alpha", class="range-number"></span>
+            <div class="range-labels"> <span>0.001</span> <span>0.01</span> <span>0.1</span> <span>1</span> </div>
+        </div> <br> <br>
     </div>
 
     <script type="module" src="fisherz.js"></script>

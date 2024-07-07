@@ -1,4 +1,4 @@
-import { Matrix, normize } from "./matrix.js";
+import { Matrix, normalize } from "./matrix.js";
 import { norminv, norm, rnorm, fisherz } from "./stats.js";
 function draw_scatter(ctx, X) {
     const w = ctx.canvas.width;
@@ -9,7 +9,7 @@ function draw_scatter(ctx, X) {
     ctx.save();
     ctx.translate(w / 2, h / 2);
     ctx.scale(w / 20, w / 20);
-    ctx.fillStyle = "#585858";
+    ctx.fillStyle = "#a8a8a8";
     for (let i = 0; i < X.rows; i++) {
         ctx.beginPath();
         ctx.arc(X.get(i, 0), -X.get(i, 1), 0.1, 0, 2 * Math.PI);
@@ -32,10 +32,10 @@ function draw_pdf(ctx, n, r, a) {
     const b = 5 / Math.sqrt(n);
     for (let i = 0; i < q; i++) {
         if (i * b / q >= cutoff) {
-            ctx.fillStyle = "#E82424";
+            ctx.fillStyle = "#e82424";
         }
         else {
-            ctx.fillStyle = "#585858";
+            ctx.fillStyle = "#a8a8a8";
         }
         ctx.beginPath();
         const pdf = norm(i * b / q, 0, Math.pow(std, 2));
@@ -43,24 +43,24 @@ function draw_pdf(ctx, n, r, a) {
         ctx.rect(i * b / -q, 0, b / -q, -1 * pdf);
         ctx.fill();
     }
-    ctx.lineWidth = 0.1;
-    ctx.strokeStyle = "#E82424";
+    ctx.lineWidth = 0.2;
+    ctx.strokeStyle = "#e82424";
     ctx.beginPath();
     ctx.moveTo(3, 0.2);
     ctx.lineTo(-3, 0.2);
     ctx.stroke();
-    ctx.strokeStyle = "#2424E8";
+    ctx.strokeStyle = "#2424e8";
     ctx.beginPath();
     ctx.moveTo(cutoff, 0.2);
     ctx.lineTo(-cutoff, 0.2);
     ctx.stroke();
     if (fisherz(r, n, a)) {
-        ctx.strokeStyle = "#2424E8";
+        ctx.strokeStyle = "#2424e8";
     }
     else {
-        ctx.strokeStyle = "#E82424";
+        ctx.strokeStyle = "#e82424";
     }
-    ctx.lineWidth = 0.02;
+    ctx.lineWidth = 0.03;
     ctx.beginPath();
     const z = Math.atanh(r);
     ctx.moveTo(z, 1.2);
@@ -70,34 +70,34 @@ function draw_pdf(ctx, n, r, a) {
 }
 const scatter_container = document.getElementById("scatter-container");
 const pdf_container = document.getElementById("pdf-container");
-const scatter_plot = document.getElementById("scatter_plot");
-const signif_pdf = document.getElementById("signif_pdf");
-const sample_range = document.getElementById("sample_range");
-const corr_range = document.getElementById("corr_range");
-const alpha_range = document.getElementById("alpha_range");
+const scatter_plot = document.getElementById("scatter-plot");
+const signif_pdf = document.getElementById("signif-pdf");
+const sample_range = document.getElementById("sample-range");
+const corr_range = document.getElementById("corr-range");
+const alpha_range = document.getElementById("alpha-range");
 const sample = document.getElementById("sample");
 const corr = document.getElementById("corr");
 const alpha = document.getElementById("alpha");
 if (scatter_container === null) {
-    throw new Error("No canvas with `id` scatter_container was found");
+    throw new Error("No canvas with `id` scatter-container was found");
 }
 if (pdf_container === null) {
-    throw new Error("No canvas with `id` pdf_container was found");
+    throw new Error("No canvas with `id` pdf-container was found");
 }
 if (scatter_plot === null) {
-    throw new Error("No canvas with `id` scatter_plot was found");
+    throw new Error("No canvas with `id` scatter-plot was found");
 }
 if (signif_pdf === null) {
-    throw new Error("No canvas with `id` signif_pdf was found");
+    throw new Error("No canvas with `id` signif-pdf was found");
 }
 if (sample_range === null) {
-    throw new Error("No input with `id` sample_range was found");
+    throw new Error("No input with `id` sample-range was found");
 }
 if (corr_range === null) {
-    throw new Error("No input with `id` corr_range was found");
+    throw new Error("No input with `id` corr-range was found");
 }
 if (alpha_range === null) {
-    throw new Error("No input with `id` alpha_range was found");
+    throw new Error("No input with `id` alpha-range was found");
 }
 if (sample === null) {
     throw new Error("No input with `id` sample was found");
@@ -132,7 +132,7 @@ let Y = new Matrix(n, 2);
 let L = new Matrix(2, 2, [1, r, r, 1]).cholesky();
 if (X.data !== undefined) {
     Y = new Matrix(n, 2, X.data.slice(0, 2 * n));
-    normize(Y);
+    normalize(Y);
     draw_scatter(scatter_ctx, Y.matmul(L.t()));
 }
 draw_pdf(pdf_ctx, n, r, a);
@@ -143,7 +143,7 @@ window.addEventListener("resize", function () {
     signif_pdf.height = 0.8 * pdf_container.clientWidth;
     if (X.data !== undefined) {
         Y = new Matrix(n, 2, X.data.slice(0, 2 * n));
-        normize(Y);
+        normalize(Y);
         draw_scatter(scatter_ctx, Y.matmul(L.t()));
     }
     draw_pdf(pdf_ctx, n, r, a);
@@ -153,7 +153,7 @@ sample_range.addEventListener('input', function () {
     sample.textContent = n.toString();
     if (X.data !== undefined) {
         Y = new Matrix(n, 2, X.data.slice(0, 2 * n));
-        normize(Y);
+        normalize(Y);
         draw_scatter(scatter_ctx, Y.matmul(L.t()));
     }
     draw_pdf(pdf_ctx, n, r, a);
@@ -161,7 +161,7 @@ sample_range.addEventListener('input', function () {
 corr_range.addEventListener('input', function () {
     r = (2 / 100) * parseFloat(corr_range.value) - 1;
     corr.textContent = r.toFixed(2);
-    L = new Matrix(2, 2, [1, r, r, 1]); //.cholesky();
+    L = new Matrix(2, 2, [1, r, r, 1]).cholesky();
     draw_scatter(scatter_ctx, Y.matmul(L.t()));
     draw_pdf(pdf_ctx, n, r, a);
 });

@@ -36,12 +36,12 @@ export class Vertex {
         const dy = this.y - that.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
-    add_parent(that, beta) {
+    add_parent(that, beta = undefined) {
         this.parents.push(that);
         this.betas.push(beta);
         that.children.push(this);
     }
-    add_child(that, beta) {
+    add_child(that, beta = undefined) {
         this.children.push(that);
         that.parents.push(this);
         that.betas.push(beta);
@@ -85,6 +85,11 @@ export class Vertex {
             that.neighbors.splice(idx, 1);
         }
     }
+    del_adjacent(that) {
+        this.del_parent(that);
+        this.del_child(that);
+        this.del_neighbor(that);
+    }
 }
 export function get_order(g) {
     const order = new Array;
@@ -110,6 +115,42 @@ export function get_order(g) {
     } while (order.length > prev);
     return order;
 }
+export function ext_pdag(g) {
+    const oriented = new Array;
+    while (oriented.length < g.length) {
+        for (let i = 0; i < g.length; i++) {
+            const x = g[i];
+            if (oriented.includes(x)) {
+                continue;
+            }
+            let sink = true;
+            for (let j = 0; j < x.children.length; j++) {
+                if (!oriented.includes(x.children[j])) {
+                    sink = false;
+                    break;
+                }
+            }
+            if (!sink) {
+                continue;
+            }
+            if (!adjacent(x.neighbors, x.neighbors)) {
+                continue;
+            }
+            if (!adjacent(x.neighbors, x.parents)) {
+                continue;
+            }
+            const N = [...x.neighbors];
+            for (let j = 0; j < N.length; j++) {
+                const y = N[j];
+                x.del_neighbor(y);
+                x.add_parent(y);
+            }
+            oriented.push(x);
+            break;
+        }
+    }
+}
+// this is exactly backwards
 export function get_edges(g) {
     const edges = new Array;
     const order = get_order(g);
@@ -126,6 +167,7 @@ export function get_edges(g) {
     }
     return edges;
 }
+// this is exactly backwards (two wrongs make a right?)
 export function get_cpdag(dag) {
     const cpdag = new Array;
     for (let i = 0; i < dag.length; i++) {
@@ -184,5 +226,18 @@ export function get_cpdag(dag) {
         }
     }
     return cpdag;
+}
+export function adjacent(A, B) {
+    for (let i = 0; i < A.length; i++) {
+        for (let j = 0; j < B.length; j++) {
+            if (A[i] === B[j]) {
+                continue;
+            }
+            if (!A[i].is_adjacent(B[j])) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 //# sourceMappingURL=graph.js.map

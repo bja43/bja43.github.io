@@ -14,28 +14,27 @@ export class Matrix {
     }
     set(i, j, x) {
         if (i > this.rows) {
-            new Error("Index i out of range");
+            throw new Error("Index i out of range");
         }
         if (j > this.cols) {
-            new Error("Index j out of range");
+            throw new Error("Index j out of range");
         }
-        if (this.data !== undefined) {
-            this.data[i * this.cols + j] = x;
+        if (this.data === undefined) {
+            throw new Error("Matrix data undefined");
         }
-        new Error("Matrix data undefined");
+        this.data[i * this.cols + j] = x;
     }
     get(i, j) {
         if (i > this.rows) {
-            new Error("Index i out of range");
+            throw new Error("Index i out of range");
         }
         if (j > this.cols) {
-            new Error("Index j out of range");
+            throw new Error("Index j out of range");
         }
-        if (this.data !== undefined) {
-            return this.data[i * this.cols + j];
+        if (this.data === undefined) {
+            throw new Error("Matrix data undefined");
         }
-        new Error("Matrix data undefined");
-        return 1;
+        return this.data[i * this.cols + j];
     }
     add(x) {
         const out = new Matrix(this.rows, this.cols);
@@ -66,7 +65,7 @@ export class Matrix {
     }
     div(x) {
         if (x === 0) {
-            new Error("Divide by zero");
+            throw new Error("Divide by zero");
         }
         const out = new Matrix(this.rows, this.cols);
         for (let i = 0; i < this.rows; i++) {
@@ -76,33 +75,9 @@ export class Matrix {
         }
         return out;
     }
-    matadd(that) {
-        if (this.rows !== that.rows || this.cols !== that.cols) {
-            new Error("Dimension mismatch");
-        }
-        const out = new Matrix(this.rows, this.cols);
-        if (this.data !== undefined && that.data !== undefined && out.data !== undefined) {
-            for (let i = 0; i < out.data.length; i++) {
-                out.data[i] = this.data[i] + that.data[i];
-            }
-        }
-        return out;
-    }
-    matsub(that) {
-        if (this.rows !== that.rows || this.cols !== that.cols) {
-            new Error("Dimension mismatch");
-        }
-        const out = new Matrix(this.rows, this.cols);
-        if (this.data !== undefined && that.data !== undefined && out.data !== undefined) {
-            for (let i = 0; i < out.data.length; i++) {
-                out.data[i] = this.data[i] - that.data[i];
-            }
-        }
-        return out;
-    }
     matmul(that) {
         if (this.cols !== that.rows) {
-            new Error("Dimension mismatch");
+            throw new Error("Dimension mismatch");
         }
         const out = new Matrix(this.rows, that.cols);
         for (let i = 0; i < this.rows; i++) {
@@ -124,8 +99,9 @@ export class Matrix {
         return out;
     }
     cholesky() {
+        // NEED TO CHECK PD
         if (this.rows !== this.cols) {
-            new Error("Matrix not square");
+            throw new Error("Matrix not square");
         }
         const L = new Matrix(this.rows, this.rows);
         for (let i = 0; i < this.rows; i++) {
@@ -147,12 +123,12 @@ export class Matrix {
     ix(rows, cols) {
         for (let i = 0; i < rows.length; i++) {
             if (rows[i] < 0 || this.rows < rows[i]) {
-                new Error("Index out of range");
+                throw new Error("Index out of range");
             }
         }
         for (let i = 0; i < cols.length; i++) {
             if (cols[i] < 0 || this.cols < cols[i]) {
-                new Error("Index out of range");
+                throw new Error("Index out of range");
             }
         }
         const out = new Matrix(rows.length, cols.length);
@@ -179,7 +155,7 @@ export class Matrix {
         return R.t().matmul(R);
     }
 }
-export function normize(X) {
+export function normalize(X) {
     for (let j = 0; j < X.cols; j++) {
         let sig2 = 0;
         for (let i = 0; i < X.rows; i++) {
@@ -192,7 +168,7 @@ export function normize(X) {
     }
 }
 export function cov(X) {
-    return X.t().matmul(X);
+    return X.t().matmul(X).div(X.rows);
 }
 export function beta(R, y, Z) {
     const Zy = R.ix(Z, [y]);
