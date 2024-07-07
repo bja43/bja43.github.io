@@ -289,6 +289,13 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
             const x = search.g[search.x];
             if (search.y !== undefined) {
                 const y = search.g[search.y];
+                if (x.parents.includes(y)) {
+                    draw_line(ctx, x.x, x.y, y.x, y.y, bg);
+                    draw_edge(ctx, y, x, undefined, true, fg3);
+                }
+                else {
+                    draw_line(ctx, x.x, x.y, y.x, y.y, fg3);
+                }
                 if (search.Z !== undefined) {
                     let cond = (search.x + 1).toString() + "  \u2aeb  " + (search.y + 1).toString();
                     if (search.Z.length > 0) {
@@ -309,13 +316,6 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
                     ctx.textAlign = "left";
                     ctx.beginPath();
                     ctx.fillText(cond, 18, 33);
-                }
-                if (x.parents.includes(y)) {
-                    draw_line(ctx, x.x, x.y, y.x, y.y, bg);
-                    draw_edge(ctx, y, x, undefined, true, fg3);
-                }
-                else {
-                    draw_line(ctx, x.x, x.y, y.x, y.y, fg3);
                 }
                 draw_vertex(ctx, y, fg3);
                 ctx.font = "24px sans-serif";
