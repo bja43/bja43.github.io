@@ -343,11 +343,11 @@ function draw_info(ctx, search, fg = FG2) {
     let max_pval = "Max p-value: ";
     if (search.best !== undefined) {
         let CIT = search.best;
-        best += CIT[0].toString() + " \u2aeb " + CIT[1].toString();
+        best += (CIT[0] + 1).toString() + " \u2aeb " + (CIT[1] + 1).toString();
         if (search.best[2].length > 0) {
             best += " | ";
             for (let i = 0; i < CIT[2].length; i++) {
-                best += CIT[2][i].toString();
+                best += (CIT[2][i] + 1).toString();
             }
         }
     }
