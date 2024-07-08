@@ -70,7 +70,7 @@ function draw_graph(ctx, g, hide_betas = true, fg = FG2, bg = BG2) {
         draw_vertex(ctx, g[i], fg);
         ctx.fillStyle = bg;
         ctx.beginPath();
-        ctx.fillText((i + 1).toFixed(0), g[i].x, g[i].y + 8);
+        ctx.fillText((i + 1).toString(), g[i].x, g[i].y + 8);
     }
 }
 function draw_graph_buttons(ctx, mode, hide_betas, fg = FG2, bg = BG2) {
@@ -213,7 +213,7 @@ function draw_data(ctx, X, fg = FG2) {
                 }
                 for (let j = 0; j < 5; j++) {
                     ctx.beginPath();
-                    ctx.fillText(X.get(j, X.cols - 1).toFixed(2), 160 + (i + 2) * 80, 140 + j * 30);
+                    ctx.fillText(X.get(j, X.cols - 1).toString(), 160 + (i + 2) * 80, 140 + j * 30);
                 }
                 break;
             }
@@ -272,12 +272,19 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
         ctx.fillText("NO DATA", w / 2, h / 2);
     }
     else {
-        if (search.pval !== undefined) {
+        if (search.line < 15) {
+            let pval = "p-value: ";
+            if (search.pval !== undefined) {
+                pval += search.pval.toFixed(3);
+            }
+            else {
+                pval += "     ";
+            }
             ctx.fillStyle = fg2;
             ctx.font = "24px sans-serif";
-            ctx.textAlign = "right";
+            ctx.textAlign = "left";
             ctx.beginPath();
-            ctx.fillText("p-value:  " + search.pval.toFixed(3), h + 80, 33);
+            ctx.fillText(pval, h - 70, 33);
         }
         if (search.line !== -1 && search.line < 15) {
             draw_graph(ctx, search.g, true, fg1);
@@ -303,13 +310,13 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
                     }
                     for (let i = 0; i < search.Z.length; i++) {
                         const z = search.g[search.Z[i]];
-                        cond += " " + search.Z[i].toString();
+                        cond += " " + (search.Z[i] + 1).toString();
                         draw_vertex(ctx, z, fg3);
                         ctx.font = "24px sans-serif";
                         ctx.textAlign = "center";
                         ctx.fillStyle = bg;
                         ctx.beginPath();
-                        ctx.fillText((search.Z[i] + 1).toFixed(0), z.x, z.y + 8);
+                        ctx.fillText((search.Z[i] + 1).toString(), z.x, z.y + 8);
                     }
                     ctx.fillStyle = fg2;
                     ctx.font = "24px sans-serif";
@@ -322,14 +329,14 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
                 ctx.textAlign = "center";
                 ctx.fillStyle = bg;
                 ctx.beginPath();
-                ctx.fillText((search.y + 1).toFixed(0), y.x, y.y + 8);
+                ctx.fillText((search.y + 1).toString(), y.x, y.y + 8);
             }
             draw_vertex(ctx, x, fg3);
             ctx.font = "24px sans-serif";
             ctx.textAlign = "center";
             ctx.fillStyle = bg;
             ctx.beginPath();
-            ctx.fillText((search.x + 1).toFixed(0), x.x, x.y + 8);
+            ctx.fillText((search.x + 1).toString(), x.x, x.y + 8);
         }
     }
 }
@@ -366,7 +373,7 @@ function draw_code(ctx, fg1 = FG1, fg2 = FG2, fg3 = FG3) {
     pseudocode.push([1, "best \u2190 none"]);
     pseudocode.push([1, "max-pval \u2190 \u03b1"]);
     pseudocode.push([1, "for x in \u{1d4a2}"]);
-    pseudocode.push([2, "for y, Z in CITs(\u{1d4a2}, x, k)"]);
+    pseudocode.push([2, "for y, Z in CITs(\u{1d4a2}, x)"]);
     pseudocode.push([3, "pval \u2190 test(x, y, Z)"]);
     pseudocode.push([3, "if max-pval < pval"]);
     pseudocode.push([4, "best \u2190 (x, y, Z)"]);
@@ -1117,6 +1124,9 @@ function step(g, R, n) {
                 search.x = -1;
             }
             search.display = search.line;
+            search.y = undefined;
+            search.Z = undefined;
+            search.pval = undefined;
             if (search.x < search.g.length - 1) {
                 search.x += 1;
                 search.line += 1;
@@ -1138,6 +1148,7 @@ function step(g, R, n) {
                 search.CITs = get_cits(search.g, search.x, search.cache);
             }
             search.display = search.line;
+            search.pval = undefined;
             if (search.CITs.length > 0) {
                 const CIT = search.CITs.pop();
                 if (CIT === undefined) {
