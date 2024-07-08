@@ -277,9 +277,6 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
             if (search.pval !== undefined) {
                 pval += search.pval.toFixed(3);
             }
-            else {
-                pval += "     ";
-            }
             ctx.fillStyle = fg2;
             ctx.font = "24px sans-serif";
             ctx.textAlign = "left";
