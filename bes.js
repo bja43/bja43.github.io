@@ -279,10 +279,10 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
             ctx.beginPath();
             ctx.fillText("p-value:  " + search.pval.toFixed(3), h + 80, 33);
         }
-        if (search.line !== -1 && search.line < 14) {
+        if (search.line !== -1 && search.line < 15) {
             draw_graph(ctx, search.g, true, fg1);
         }
-        if (search.line === 14) {
+        if (search.line === 15) {
             draw_graph(ctx, search.g, true, fg2);
         }
         if (search.x !== undefined) {
@@ -391,10 +391,10 @@ function draw_code(ctx, fg1 = FG1, fg2 = FG2, fg3 = FG3) {
                 ctx.fillText("_", j * 38 + 7, (i + 1) * 32);
             }
         }
-        if (search.line === -1) {
+        if (search.display === -1) {
             ctx.fillStyle = fg2;
         }
-        else if (i === search.line) {
+        else if (i === search.display) {
             ctx.fillStyle = fg3;
         }
         else {
@@ -640,7 +640,7 @@ let data_mode = Data_Mode.None;
 let X;
 let R;
 let code_mode = Code_Mode.None;
-let search = { line: -1, a: ALPHA };
+let search = { line: -1, display: -1, a: ALPHA };
 draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
 window.addEventListener("resize", () => {
     dag_canvas.width = dag_container.clientWidth;
@@ -713,7 +713,7 @@ dag_canvas.addEventListener("mousedown", (event) => {
             g.push(new Vertex(x, y));
             X = undefined;
             R = undefined;
-            search = { line: -1, a: ALPHA };
+            search = { line: -1, display: -1, a: ALPHA };
             draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
         }
     }
@@ -753,7 +753,7 @@ dag_canvas.addEventListener("mousedown", (event) => {
         }
         X = undefined;
         R = undefined;
-        search = { line: -1, a: ALPHA };
+        search = { line: -1, display: -1, a: ALPHA };
         draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
     }
 });
@@ -773,7 +773,7 @@ dag_canvas.addEventListener("mouseup", (event) => {
                 }
                 X = undefined;
                 R = undefined;
-                search = { line: -1, a: ALPHA };
+                search = { line: -1, display: -1, a: ALPHA };
                 break;
             }
         }
@@ -808,7 +808,7 @@ data_canvas.addEventListener("mousedown", (event) => {
     if (data_mode === Data_Mode.Simulate) {
         X = undefined;
         R = undefined;
-        search = { line: 0, a: ALPHA };
+        search = { line: -1, display: -1, a: ALPHA };
         if (g.length > 0) {
             X = new Matrix(SAMPLES, g.length, rnorm(SAMPLES * g.length));
             const order = get_order(g);
@@ -887,13 +887,16 @@ code_canvas.addEventListener("mousedown", (event) => {
     }
     if (X !== undefined && R !== undefined) {
         if (code_mode === Code_Mode.Restart) {
-            search = { line: 0, a: ALPHA };
+            search = { line: -1, display: -1, a: ALPHA };
         }
-        if (code_mode === Code_Mode.Step && search.line < 14) {
+        if (code_mode === Code_Mode.Step && search.line < 15) {
+            if (search.line === -1) {
+                step(g, R, X.rows);
+            }
             step(g, R, X.rows);
         }
     }
-    if (search.line < 14) {
+    if (search.line < 15) {
         draw_search(search_ctx, search, FG1);
     }
     else {
@@ -927,7 +930,7 @@ function auto() {
     if (X === undefined || R === undefined) {
         return;
     }
-    if (search.line !== -1 && search.line < 14) {
+    if (search.line < 15) {
         step(g, R, X.rows);
         draw_search(search_ctx, search, FG1);
         draw_background(code_ctx, BG1);
@@ -936,7 +939,7 @@ function auto() {
         draw_info(info_ctx, search);
         draw_code_buttons(code_ctx, code_mode);
     }
-    if (search.line === 14) {
+    if (search.line === 15) {
         draw_search(search_ctx, search, FG2);
     }
 }
@@ -1058,7 +1061,19 @@ function step(g, R, n) {
         return;
     }
     switch (search.line) {
+        case -1: {
+            search.display = search.line;
+            search.cache = new Array;
+            search.max_pval = undefined;
+            search.best = undefined;
+            search.x = undefined;
+            search.y = undefined;
+            search.pval = undefined;
+            search.line += 1;
+            break;
+        }
         case 0: {
+            search.display = search.line;
             search.g = new Array;
             for (let i = 0; i < g.length; i++) {
                 search.g.push(new Vertex(g[i].x, g[i].y));
@@ -1072,6 +1087,7 @@ function step(g, R, n) {
             break;
         }
         case 1: {
+            search.display = search.line;
             search.cache = new Array;
             search.max_pval = undefined;
             search.best = undefined;
@@ -1082,11 +1098,13 @@ function step(g, R, n) {
             break;
         }
         case 2: {
+            search.display = search.line;
             search.best = undefined;
             search.line += 1;
             break;
         }
         case 3: {
+            search.display = search.line;
             search.max_pval = search.a;
             search.line += 1;
             break;
@@ -1098,6 +1116,7 @@ function step(g, R, n) {
             if (search.x === undefined) {
                 search.x = -1;
             }
+            search.display = search.line;
             if (search.x < search.g.length - 1) {
                 search.x += 1;
                 search.line += 1;
@@ -1118,6 +1137,7 @@ function step(g, R, n) {
             if (search.CITs === undefined) {
                 search.CITs = get_cits(search.g, search.x, search.cache);
             }
+            search.display = search.line;
             if (search.CITs.length > 0) {
                 const CIT = search.CITs.pop();
                 if (CIT === undefined) {
@@ -1143,6 +1163,7 @@ function step(g, R, n) {
             if (search.Z === undefined) {
                 throw new Error("Z is undefined on line " + search.line);
             }
+            search.display = search.line;
             search.pval = fisherz(R, n, search.x, search.y, search.Z);
             search.line += 1;
             break;
@@ -1154,6 +1175,7 @@ function step(g, R, n) {
             if (search.pval === undefined) {
                 throw new Error("pval is undefined on line " + search.line);
             }
+            search.display = search.line;
             if (search.max_pval < search.pval) {
                 search.line += 1;
             }
@@ -1172,6 +1194,7 @@ function step(g, R, n) {
             if (search.Z === undefined) {
                 throw new Error("Z is undefined on line " + search.line);
             }
+            search.display = search.line;
             search.best = [search.x, search.y, search.Z];
             search.line += 1;
             break;
@@ -1180,6 +1203,7 @@ function step(g, R, n) {
             if (search.pval === undefined) {
                 throw new Error("pval is undefined on line " + search.line);
             }
+            search.display = search.line;
             search.max_pval = search.pval;
             search.line = 5;
             break;
@@ -1188,6 +1212,7 @@ function step(g, R, n) {
             if (search.max_pval === undefined) {
                 throw new Error("max_pval is undefined on line " + search.line);
             }
+            search.display = search.line;
             if (search.a < search.max_pval) {
                 search.line += 1;
             }
@@ -1203,15 +1228,23 @@ function step(g, R, n) {
             if (search.best === undefined) {
                 throw new Error("best is undefined on line " + search.line);
             }
+            search.display = search.line;
             search.g = update_graph(search.g, search.best);
             search.line = 1;
             break;
         }
         case 12: {
+            search.display = search.line;
             search.line += 1;
             break;
         }
         case 13: {
+            search.display = search.line;
+            search.line += 1;
+            break;
+        }
+        case 14: {
+            search.display = search.line;
             search.line += 1;
             break;
         }
