@@ -35,11 +35,9 @@
             margin-left: 10%;
             margin-right: 10%;
         }
-        #plot-container {
+        .full-width {
+            border-radius: 10px;
             overflow: hidden;
-            width: 80%;
-            margin-left: 10%;
-            margin-right: 10%;
         }
     </style>
 </head>
@@ -56,14 +54,16 @@
         <div id="data-container"> <canvas id="data-canvas"><canvas> </div> <br>
         <div class="clear-float">
             <div class="float-left">
-                <div class="float-left"> <h3>Search :</h3> </div>
-                <div id="search-container"> <canvas id="search-canvas"><canvas> </div> <br>
-                <div id="info-container"> <canvas id="info-canvas"><canvas> </div>
+                <div> <h3>Search :</h3> </div>
+                <div class="full-width" id="search-container"> <canvas id="search-canvas"><canvas> </div> <br>
+                <div class="full-width" id="info-container"> <canvas id="info-canvas"><canvas> </div>
             </div>
-            <div class="float-right"> <h3>Pseudocode :</h3> </div>
-            <div class="float-right" id="code-container"> <canvas id="code-canvas"><canvas> </div> <br>
+            <div class="float-right">
+                <div> <h3>Pseudocode :</h3> </div>
+                <div class="full-width" id="code-container"> <canvas id="code-canvas"><canvas> </div> <br>
+            </div>
         </div> <br>
     </div>
 
-    <script type="module" src="bes.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
