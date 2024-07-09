@@ -1157,6 +1157,8 @@ function step(g, R, n) {
             }
             else {
                 search.CITs = undefined;
+                serach.y = undefined;
+                search.Z = undefined;
                 search.line = 4;
             }
             break;
