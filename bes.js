@@ -1117,13 +1117,13 @@ function step(g, R, n) {
             if (search.g === undefined) {
                 throw new Error("g is undefined on line " + search.line);
             }
+            search.display = search.line;
             if (search.x === undefined) {
                 search.x = -1;
             }
-            search.display = search.line;
-            search.y = undefined;
-            search.Z = undefined;
-            search.pval = undefined;
+            // search.y = undefined;
+            // search.Z = undefined;
+            // search.pval = undefined;
             if (search.x < search.g.length - 1) {
                 search.x += 1;
                 search.line += 1;
@@ -1141,10 +1141,12 @@ function step(g, R, n) {
             if (search.x === undefined) {
                 throw new Error("x is undefined on line " + search.line);
             }
+            search.display = search.line;
             if (search.CITs === undefined) {
                 search.CITs = get_cits(search.g, search.x, search.cache);
             }
-            search.display = search.line;
+            search.y = undefined;
+            search.Z = undefined;
             search.pval = undefined;
             if (search.CITs.length > 0) {
                 const CIT = search.CITs.pop();
@@ -1157,8 +1159,6 @@ function step(g, R, n) {
             }
             else {
                 search.CITs = undefined;
-                serach.y = undefined;
-                search.Z = undefined;
                 search.line = 4;
             }
             break;
