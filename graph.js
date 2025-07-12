@@ -253,6 +253,66 @@ export function get_cpdag(dag) {
     return cpdag;
 }
 
+export function get_cpdag_old(dag) {
+    const cpdag = new Array;
+    for (let i = 0; i < dag.length; i++) {
+        cpdag.push(new Vertex(dag[i].x, dag[i].y));
+    }
+    const unknown = get_edges(dag);
+    while (unknown.length > 0) {
+        const x = unknown[unknown.length - 1][0];
+        const y = unknown[unknown.length - 1][1];
+        let unc = false;
+        for (let i = 0; i < cpdag[x].parents.length; i++) {
+            const w = cpdag.indexOf(cpdag[x].parents[i], 0);
+            if (dag[y].parents.includes(dag[w])) {
+                continue;
+            }
+            unc = true;
+            break;
+        }
+        for (let i = unknown.length - 1; i >= 0; i--) {
+            if (unknown[i][1] !== y) {
+                break;
+            }
+            const u = unknown[i][0];
+            if (unc || cpdag[x].parents.includes(cpdag[u])) {
+                cpdag[y].add_parent(cpdag[u], undefined);
+                unknown.splice(i, 1);
+            }
+        }
+        if (unc) {
+            continue;
+        }
+        let uc = false;
+        for (let i = 0; i < dag[y].parents.length; i++) {
+            const z = dag.indexOf(dag[y].parents[i], 0);
+            if (x === z) {
+                continue;
+            }
+            if (dag[x].parents.includes(dag[z])) {
+                continue;
+            }
+            uc = true;
+            break;
+        }
+        for (let i = unknown.length - 1; i >= 0; i--) {
+            if (unknown[i][1] !== y) {
+                break;
+            }
+            const u = unknown[i][0];
+            if (uc) {
+                cpdag[y].add_parent(cpdag[u], undefined);
+            }
+            else {
+                cpdag[y].add_neighbor(cpdag[u]);
+            }
+            unknown.splice(i, 1);
+        }
+    }
+    return cpdag;
+}
+
 export function adjacent(A, B) {
     for (let i = 0; i < A.length; i++) {
         for (let j = 0; j < B.length; j++) {
