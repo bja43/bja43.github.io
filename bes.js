@@ -1,12 +1,14 @@
 import { Vertex, get_cpdag, get_order, adjacent, ext_pdag } from "./graph.js";
 import { Matrix, cov, normalize } from "./matrix.js";
 import { ncdf, rnorm, } from "./stats.js";
+
 function draw_vertex(ctx, v, fg = FG2) {
     ctx.fillStyle = fg;
     ctx.beginPath();
     ctx.arc(v.x, v.y, RADIUS, 0, 2 * Math.PI);
     ctx.fill();
 }
+
 function draw_edge(ctx, from, to, beta, hide_betas = false, fg = FG2, bg = BG2, padding = RADIUS) {
     if (from.distance(to) < 2 * RADIUS)
         return;
@@ -37,6 +39,7 @@ function draw_edge(ctx, from, to, beta, hide_betas = false, fg = FG2, bg = BG2, 
         ctx.fillText(beta.toFixed(2), midx, midy, 32);
     }
 }
+
 function draw_line(ctx, x1, y1, x2, y2, fg = FG2) {
     ctx.strokeStyle = fg;
     ctx.lineWidth = RADIUS / 5;
@@ -45,6 +48,7 @@ function draw_line(ctx, x1, y1, x2, y2, fg = FG2) {
     ctx.lineTo(x2, y2);
     ctx.stroke();
 }
+
 function draw_background(ctx, bg = BG2) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -52,15 +56,13 @@ function draw_background(ctx, bg = BG2) {
     ctx.beginPath();
     ctx.fillRect(0, 0, w, h);
 }
+
 function draw_graph(ctx, g, hide_betas = true, fg = FG2, bg = BG2) {
     for (let i = 0; i < g.length; i++) {
         for (let j = 0; j < g[i].parents.length; j++) {
             draw_edge(ctx, g[i].parents[j], g[i], g[i].betas[j], hide_betas, fg, bg);
         }
         for (let j = 0; j < g[i].neighbors.length; j++) {
-            if (i < j) {
-                break;
-            }
             draw_line(ctx, g[i].x, g[i].y, g[i].neighbors[j].x, g[i].neighbors[j].y, fg);
         }
     }
@@ -73,6 +75,7 @@ function draw_graph(ctx, g, hide_betas = true, fg = FG2, bg = BG2) {
         ctx.fillText((i + 1).toString(), g[i].x, g[i].y + 8);
     }
 }
+
 function draw_graph_buttons(ctx, mode, hide_betas, fg = FG2, bg = BG2) {
     const w = ctx.canvas.width;
     ctx.strokeStyle = fg;
@@ -175,6 +178,7 @@ function draw_graph_buttons(ctx, mode, hide_betas, fg = FG2, bg = BG2) {
     ctx.fillText(desc, w - 10, 70);
     ctx.textAlign = "left";
 }
+
 function draw_data(ctx, X, fg = FG2) {
     const w = ctx.canvas.width;
     ctx.fillStyle = fg;
@@ -222,6 +226,7 @@ function draw_data(ctx, X, fg = FG2) {
         ctx.fillText("".concat("[ ", X.rows.toString(), " \u00d7 ", X.cols.toString(), " ]"), Math.min(100 + X.cols * 80, w - 50), 300);
     }
 }
+
 function draw_data_buttons(ctx, mode, fg = FG2, bg = BG1) {
     ctx.fillStyle = bg;
     ctx.beginPath();
@@ -260,6 +265,7 @@ function draw_data_buttons(ctx, mode, fg = FG2, bg = BG1) {
     ctx.fillText("Redraw Betas", 142, 40);
     ctx.fillStyle = fg;
 }
+
 function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -337,6 +343,7 @@ function draw_search(ctx, search, fg1 = FG1, fg2 = FG2, fg3 = FG3, bg = BG2) {
         }
     }
 }
+
 function draw_info(ctx, search, fg = FG2) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -363,6 +370,7 @@ function draw_info(ctx, search, fg = FG2) {
     ctx.beginPath();
     ctx.fillText(max_pval.toString(), 0, 100);
 }
+
 function draw_code(ctx, fg1 = FG1, fg2 = FG2, fg3 = FG3) {
     const pseudocode = new Array;
     pseudocode.push([0, "\u{1d4a2} \u2190 fully connected"]);
@@ -408,6 +416,7 @@ function draw_code(ctx, fg1 = FG1, fg2 = FG2, fg3 = FG3) {
         ctx.fillText(pseudocode[i][1], pseudocode[i][0] * 38, (i + 1) * 32);
     }
 }
+
 function draw_code_buttons(ctx, mode, fg = FG2, bg = BG1) {
     const y = 512;
     ctx.fillStyle = bg;
@@ -461,6 +470,7 @@ function draw_code_buttons(ctx, mode, fg = FG2, bg = BG1) {
     ctx.fillText("Auto", 203, y + 23);
     ctx.fillStyle = fg;
 }
+
 function draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx) {
     draw_background(dag_ctx);
     draw_background(cpdag_ctx);
@@ -477,6 +487,7 @@ function draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx) 
     draw_data_buttons(data_ctx, data_mode);
     draw_code_buttons(code_ctx, code_mode);
 }
+
 function del_vertex(g, i) {
     for (let j = 0; j < g.length; j++) {
         g[i].del_parent(g[j]);
@@ -488,6 +499,7 @@ function del_vertex(g, i) {
         g.splice(idx, 1);
     }
 }
+
 function update_pos(ctx, x, y) {
     if (selected === undefined)
         return;
@@ -516,6 +528,7 @@ function update_pos(ctx, x, y) {
         }
     }
 }
+
 var Graph_Mode;
 (function (Graph_Mode) {
     Graph_Mode[Graph_Mode["Place"] = 0] = "Place";
@@ -523,12 +536,14 @@ var Graph_Mode;
     Graph_Mode[Graph_Mode["Connect"] = 2] = "Connect";
     Graph_Mode[Graph_Mode["Delete"] = 3] = "Delete";
 })(Graph_Mode || (Graph_Mode = {}));
+
 var Data_Mode;
 (function (Data_Mode) {
     Data_Mode[Data_Mode["Simulate"] = 0] = "Simulate";
     Data_Mode[Data_Mode["Redraw"] = 1] = "Redraw";
     Data_Mode[Data_Mode["None"] = 2] = "None";
 })(Data_Mode || (Data_Mode = {}));
+
 var Code_Mode;
 (function (Code_Mode) {
     Code_Mode[Code_Mode["Restart"] = 0] = "Restart";
@@ -536,6 +551,7 @@ var Code_Mode;
     Code_Mode[Code_Mode["Auto"] = 2] = "Auto";
     Code_Mode[Code_Mode["None"] = 3] = "None";
 })(Code_Mode || (Code_Mode = {}));
+
 const dag_container = document.getElementById("dag-container");
 const cpdag_container = document.getElementById("cpdag-container");
 const data_container = document.getElementById("data-container");
@@ -548,6 +564,7 @@ const data_canvas = document.getElementById("data-canvas");
 const search_canvas = document.getElementById("search-canvas");
 const code_canvas = document.getElementById("code-canvas");
 const info_canvas = document.getElementById("info-canvas");
+
 if (dag_container === null) {
     throw new Error("No canvas with `id` dag-container was found");
 }
@@ -584,6 +601,7 @@ if (code_canvas === null) {
 if (info_canvas === null) {
     throw new Error("No canvas with `id` info-canvas was found");
 }
+
 dag_canvas.width = dag_container.clientWidth;
 dag_canvas.height = 0.8 * dag_canvas.clientWidth;
 cpdag_canvas.width = cpdag_container.clientWidth;
@@ -596,12 +614,14 @@ code_canvas.width = code_container.clientWidth;
 code_canvas.height = 600;
 info_canvas.width = info_container.clientWidth;
 info_canvas.height = 200;
+
 const dag_ctx = dag_canvas.getContext("2d");
 const cpdag_ctx = cpdag_canvas.getContext("2d");
 const data_ctx = data_canvas.getContext("2d");
 const search_ctx = search_canvas.getContext("2d");
 const code_ctx = code_canvas.getContext("2d");
 const info_ctx = info_canvas.getContext("2d");
+
 if (dag_ctx === null) {
     throw new Error("2D context is not supported");
 }
@@ -620,6 +640,7 @@ if (code_ctx === null) {
 if (info_ctx === null) {
     throw new Error("2D context is not supported");
 }
+
 const RADIUS = 25;
 const VLIMIT = 7;
 const SAMPLES = 1000;
@@ -632,9 +653,11 @@ const FG2 = "#a8a8a8";
 const FG3 = "#e8e8e8";
 const FF1 = "sans-serif";
 const FF2 = "courier";
+
 document.body.style.backgroundColor = BG1;
 document.body.style.color = FG2;
 document.body.style.fontFamily = FF1;
+
 let graph_mode = Graph_Mode.Place;
 let selected;
 let offset;
@@ -645,7 +668,9 @@ let X;
 let R;
 let code_mode = Code_Mode.None;
 let search = { line: -1, display: -1, a: ALPHA };
+
 draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
+
 window.addEventListener("resize", () => {
     dag_canvas.width = dag_container.clientWidth;
     dag_canvas.height = 0.8 * dag_container.clientWidth;
@@ -664,6 +689,7 @@ window.addEventListener("resize", () => {
     }
     draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
 });
+
 window.addEventListener("keypress", (event) => {
     switch (event.code) {
         case "Digit1":
@@ -687,12 +713,14 @@ window.addEventListener("keypress", (event) => {
     draw_graph(dag_ctx, g, hide_betas);
     selected = undefined;
 });
+
 dag_canvas.addEventListener("mouseout", () => {
     draw_background(dag_ctx);
     draw_graph_buttons(dag_ctx, graph_mode, hide_betas);
     draw_graph(dag_ctx, g, hide_betas);
     selected = undefined;
 });
+
 dag_canvas.addEventListener("mousedown", (event) => {
     const w = dag_ctx.canvas.width;
     const x = event.offsetX;
@@ -761,6 +789,7 @@ dag_canvas.addEventListener("mousedown", (event) => {
         draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
     }
 });
+
 dag_canvas.addEventListener("mouseup", (event) => {
     const x = event.offsetX;
     const y = event.offsetY;
@@ -785,6 +814,7 @@ dag_canvas.addEventListener("mouseup", (event) => {
     draw_all(dag_ctx, cpdag_ctx, data_ctx, search_ctx, code_ctx, info_ctx);
     selected = undefined;
 });
+
 dag_canvas.addEventListener("mousemove", (event) => {
     const x = event.offsetX;
     const y = event.offsetY;
@@ -800,6 +830,7 @@ dag_canvas.addEventListener("mousemove", (event) => {
     draw_graph(dag_ctx, g, hide_betas);
     draw_graph(cpdag_ctx, get_cpdag(g));
 });
+
 data_canvas.addEventListener("mousedown", (event) => {
     const x = event.offsetX;
     const y = event.offsetY;
@@ -862,11 +893,13 @@ data_canvas.addEventListener("mousedown", (event) => {
     draw_data(data_ctx, X);
     draw_data_buttons(data_ctx, data_mode);
 });
+
 data_canvas.addEventListener("mouseup", () => {
     data_mode = Data_Mode.None;
     draw_data(data_ctx, X);
     draw_data_buttons(data_ctx, data_mode);
 });
+
 code_canvas.addEventListener("mousedown", (event) => {
     const x = event.offsetX;
     const y = event.offsetY;
@@ -912,6 +945,7 @@ code_canvas.addEventListener("mousedown", (event) => {
     draw_info(info_ctx, search);
     draw_code_buttons(code_ctx, code_mode);
 });
+
 code_canvas.addEventListener("mouseup", (event) => {
     const x = event.offsetX;
     const y = event.offsetY;
@@ -923,7 +957,9 @@ code_canvas.addEventListener("mouseup", (event) => {
     }
     draw_code_buttons(code_ctx, code_mode);
 });
+
 window.setInterval(auto, AMSPS);
+
 function auto() {
     if (code_mode !== Code_Mode.Auto) {
         return;
@@ -947,6 +983,7 @@ function auto() {
         draw_search(search_ctx, search, FG2);
     }
 }
+
 function* subsets(set, r) {
     function* backtrack(idx, subset) {
         if (subset.length === r) {
@@ -961,6 +998,7 @@ function* subsets(set, r) {
     }
     yield* backtrack(0, []);
 }
+
 function get_cits(g, i, cache) {
     const cits = new Array;
     const x = g[i];
@@ -1015,6 +1053,7 @@ function get_cits(g, i, cache) {
     }
     return cits;
 }
+
 function update_graph(g, cit) {
     const x = g[cit[0]];
     const y = g[cit[1]];
@@ -1043,6 +1082,7 @@ function update_graph(g, cit) {
     ext_pdag(g);
     return get_cpdag(g);
 }
+
 function fisherz(R, n, x, y, Z) {
     const I = R.ix([x, y, ...Z], [x, y, ...Z]).inv();
     let z = Math.atanh(-I.get(0, 1) / Math.sqrt(I.get(0, 0) * I.get(1, 1)));
@@ -1050,6 +1090,7 @@ function fisherz(R, n, x, y, Z) {
     const pval = 1 - ncdf(z) + ncdf(-z);
     return pval;
 }
+
 function hash(x, y, Z) {
     const sorted = [...Z];
     sorted.sort();
@@ -1060,6 +1101,7 @@ function hash(x, y, Z) {
         return [y, x, ...sorted].join("");
     }
 }
+
 function step(g, R, n) {
     if (R === undefined) {
         return;
@@ -1264,4 +1306,3 @@ function step(g, R, n) {
         }
     }
 }
-//# sourceMappingURL=index.js.map

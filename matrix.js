@@ -1,7 +1,9 @@
 export class Matrix {
+
     rows;
     cols;
     data;
+
     constructor(rows, cols, data) {
         this.rows = rows;
         this.cols = cols;
@@ -12,6 +14,7 @@ export class Matrix {
             this.data = new Array(rows * cols).fill(0);
         }
     }
+
     set(i, j, x) {
         if (i > this.rows) {
             throw new Error("Index i out of range");
@@ -24,6 +27,7 @@ export class Matrix {
         }
         this.data[i * this.cols + j] = x;
     }
+
     get(i, j) {
         if (i > this.rows) {
             throw new Error("Index i out of range");
@@ -36,6 +40,7 @@ export class Matrix {
         }
         return this.data[i * this.cols + j];
     }
+
     add(x) {
         const out = new Matrix(this.rows, this.cols);
         for (let i = 0; i < this.rows; i++) {
@@ -45,6 +50,7 @@ export class Matrix {
         }
         return out;
     }
+
     sub(x) {
         const out = new Matrix(this.rows, this.cols);
         for (let i = 0; i < this.rows; i++) {
@@ -54,6 +60,7 @@ export class Matrix {
         }
         return out;
     }
+
     mul(x) {
         const out = new Matrix(this.rows, this.cols);
         for (let i = 0; i < this.rows; i++) {
@@ -63,6 +70,7 @@ export class Matrix {
         }
         return out;
     }
+
     div(x) {
         if (x === 0) {
             throw new Error("Divide by zero");
@@ -75,6 +83,7 @@ export class Matrix {
         }
         return out;
     }
+
     matmul(that) {
         if (this.cols !== that.rows) {
             throw new Error("Dimension mismatch");
@@ -89,6 +98,7 @@ export class Matrix {
         }
         return out;
     }
+
     t() {
         const out = new Matrix(this.cols, this.rows);
         for (let i = 0; i < this.rows; i++) {
@@ -98,6 +108,7 @@ export class Matrix {
         }
         return out;
     }
+
     cholesky() {
         // NEED TO CHECK PD
         if (this.rows !== this.cols) {
@@ -120,6 +131,7 @@ export class Matrix {
         }
         return L;
     }
+
     ix(rows, cols) {
         for (let i = 0; i < rows.length; i++) {
             if (rows[i] < 0 || this.rows < rows[i]) {
@@ -139,6 +151,7 @@ export class Matrix {
         }
         return out;
     }
+
     inv() {
         const L = this.cholesky();
         const R = new Matrix(L.rows, L.rows);
@@ -155,6 +168,7 @@ export class Matrix {
         return R.t().matmul(R);
     }
 }
+
 export function normalize(X) {
     for (let j = 0; j < X.cols; j++) {
         let sig2 = 0;
@@ -167,12 +181,13 @@ export function normalize(X) {
         }
     }
 }
+
 export function cov(X) {
     return X.t().matmul(X).div(X.rows);
 }
+
 export function beta(R, y, Z) {
     const Zy = R.ix(Z, [y]);
     const iZZ = R.ix(Z, Z).inv();
     return iZZ.matmul(Zy);
 }
-//# sourceMappingURL=matrix.js.map

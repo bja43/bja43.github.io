@@ -1,10 +1,12 @@
 export class Vertex {
+
     x;
     y;
     parents;
     children;
     neighbors;
     betas;
+
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -13,6 +15,7 @@ export class Vertex {
         this.neighbors = new Array;
         this.betas = new Array;
     }
+
     is_adjacent(that) {
         for (let i = 0; i < this.parents.length; i++) {
             if (this.parents[i] === that) {
@@ -31,25 +34,30 @@ export class Vertex {
         }
         return false;
     }
+
     distance(that) {
         const dx = this.x - that.x;
         const dy = this.y - that.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
+
     add_parent(that, beta = undefined) {
         this.parents.push(that);
         this.betas.push(beta);
         that.children.push(this);
     }
+
     add_child(that, beta = undefined) {
         this.children.push(that);
         that.parents.push(this);
         that.betas.push(beta);
     }
+
     add_neighbor(that) {
         this.neighbors.push(that);
         that.neighbors.push(this);
     }
+
     del_parent(that) {
         let idx;
         idx = this.parents.indexOf(that, 0);
@@ -62,6 +70,7 @@ export class Vertex {
             that.children.splice(idx, 1);
         }
     }
+
     del_child(that) {
         let idx;
         idx = this.children.indexOf(that, 0);
@@ -74,6 +83,7 @@ export class Vertex {
             that.betas.splice(idx, 1);
         }
     }
+
     del_neighbor(that) {
         let idx;
         idx = this.neighbors.indexOf(that, 0);
@@ -85,12 +95,14 @@ export class Vertex {
             that.neighbors.splice(idx, 1);
         }
     }
+
     del_adjacent(that) {
         this.del_parent(that);
         this.del_child(that);
         this.del_neighbor(that);
     }
 }
+
 export function get_order(g) {
     const order = new Array;
     let prev;
@@ -115,6 +127,7 @@ export function get_order(g) {
     } while (order.length > prev);
     return order;
 }
+
 export function ext_pdag(g) {
     const oriented = new Array;
     while (oriented.length < g.length) {
@@ -150,7 +163,7 @@ export function ext_pdag(g) {
         }
     }
 }
-// this is exactly backwards
+
 export function get_edges(g) {
     const edges = new Array;
     const order = get_order(g);
@@ -167,7 +180,7 @@ export function get_edges(g) {
     }
     return edges;
 }
-// this is exactly backwards (two wrongs make a right?)
+
 export function get_cpdag(dag) {
     const cpdag = new Array;
     for (let i = 0; i < dag.length; i++) {
@@ -177,56 +190,69 @@ export function get_cpdag(dag) {
     while (unknown.length > 0) {
         const x = unknown[unknown.length - 1][0];
         const y = unknown[unknown.length - 1][1];
-        let unc = false;
+        let restart = false;
         for (let i = 0; i < cpdag[x].parents.length; i++) {
             const w = cpdag.indexOf(cpdag[x].parents[i], 0);
-            if (dag[y].parents.includes(dag[w])) {
-                continue;
-            }
-            unc = true;
-            break;
-        }
-        for (let i = unknown.length - 1; i >= 0; i--) {
-            if (unknown[i][1] !== y) {
-                break;
-            }
-            const u = unknown[i][0];
-            if (unc || cpdag[x].parents.includes(cpdag[u])) {
-                cpdag[y].add_parent(cpdag[u], undefined);
-                unknown.splice(i, 1);
-            }
-        }
-        if (unc) {
-            continue;
-        }
-        let uc = false;
-        for (let i = 0; i < dag[y].parents.length; i++) {
-            const z = dag.indexOf(dag[y].parents[i], 0);
-            if (x === z) {
-                continue;
-            }
-            if (dag[x].parents.includes(dag[z])) {
-                continue;
-            }
-            uc = true;
-            break;
-        }
-        for (let i = unknown.length - 1; i >= 0; i--) {
-            if (unknown[i][1] !== y) {
-                break;
-            }
-            const u = unknown[i][0];
-            if (uc) {
-                cpdag[y].add_parent(cpdag[u], undefined);
+            if (!dag[y].parents.includes(dag[w])) {
+                for (let j = unknown.length - 1; j >= 0; j--) {
+                    if (unknown[j][1] !== y) {
+                        continue;
+                    }
+                    const u = unknown[j][0];
+                    unknown.splice(j, 1); 
+                    cpdag[y].add_parent(cpdag[u]);
+                    restart = true;
+                }                
             }
             else {
-                cpdag[y].add_neighbor(cpdag[u]);
+                for (let j = unknown.length - 1; j >= 0; j--) {
+                    if (unknown[j][0] !== w) {
+                        continue;
+                    }
+                    if (unknown[j][1] !== y) {
+                        continue;
+                    }
+                    unknown.splice(j, 1); 
+                    cpdag[y].add_parent(cpdag[w]);
+                    break;
+                }
             }
-            unknown.splice(i, 1);
         }
+        if (restart) {
+            continue;
+        }
+        for (let i = 0; i < dag[y].parents.length; i++) {
+            const z = dag.indexOf(dag[y].parents[i], 0);
+            if (z === x) {
+                continue;
+            }
+            if (!dag[x].parents.includes(dag[z])) {
+                for (let j = unknown.length - 1; j >= 0; j--) {
+                    if (unknown[j][1] !== y) {
+                        continue;
+                    }
+                    const u = unknown[j][0];
+                    unknown.splice(j, 1); 
+                    cpdag[y].add_parent(cpdag[u]);
+                    restart = true;
+                }                
+            }
+        }
+        if (restart) {
+            continue;
+        }
+        for (let j = unknown.length - 1; j >= 0; j--) {
+            if (unknown[j][1] !== y) {
+                continue;
+            }
+            const u = unknown[j][0];
+            unknown.splice(j, 1); 
+            cpdag[y].add_neighbor(cpdag[u]);
+        }                
     }
     return cpdag;
 }
+
 export function adjacent(A, B) {
     for (let i = 0; i < A.length; i++) {
         for (let j = 0; j < B.length; j++) {
@@ -240,4 +266,3 @@ export function adjacent(A, B) {
     }
     return true;
 }
-//# sourceMappingURL=graph.js.map

@@ -1,5 +1,6 @@
 import { Matrix, normalize } from "./matrix.js";
 import { norminv, norm, rnorm, fisherz } from "./stats.js";
+
 function draw_scatter(ctx, X) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -17,6 +18,7 @@ function draw_scatter(ctx, X) {
     }
     ctx.restore();
 }
+
 function draw_pdf(ctx, n, r, a) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -68,6 +70,7 @@ function draw_pdf(ctx, n, r, a) {
     ctx.stroke();
     ctx.restore();
 }
+
 const scatter_container = document.getElementById("scatter-container");
 const pdf_container = document.getElementById("pdf-container");
 const scatter_plot = document.getElementById("scatter-plot");
@@ -78,6 +81,7 @@ const alpha_range = document.getElementById("alpha-range");
 const sample = document.getElementById("sample");
 const corr = document.getElementById("corr");
 const alpha = document.getElementById("alpha");
+
 if (scatter_container === null) {
     throw new Error("No canvas with `id` scatter-container was found");
 }
@@ -108,24 +112,31 @@ if (corr === null) {
 if (alpha === null) {
     throw new Error("No input with `id` alpha was found");
 }
+
 scatter_plot.width = scatter_container.clientWidth;
 scatter_plot.height = 0.8 * scatter_container.clientWidth;
 signif_pdf.width = pdf_container.clientWidth;
 signif_pdf.height = 0.8 * pdf_container.clientWidth;
+
 const scatter_ctx = scatter_plot.getContext("2d");
 const pdf_ctx = signif_pdf.getContext("2d");
+
 if (scatter_ctx === null) {
     throw new Error("2D context is not supported");
 }
 if (pdf_ctx === null) {
     throw new Error("2D context is not supported");
 }
+
 let n = Math.round(Math.pow(10, 1 + (3 / 100) * parseFloat(sample_range.value)));
 sample.textContent = n.toString();
+
 let r = (2 / 100) * parseFloat(corr_range.value) - 1;
 corr.textContent = r.toFixed(2);
+
 let a = Math.pow(10, -(3 / 100) * (100 - parseFloat(alpha_range.value)));
 alpha.textContent = a.toFixed(3);
+
 const N = 10000;
 const X = new Matrix(N, 2, rnorm(2 * N));
 let Y = new Matrix(n, 2);
@@ -135,7 +146,9 @@ if (X.data !== undefined) {
     normalize(Y);
     draw_scatter(scatter_ctx, Y.matmul(L.t()));
 }
+
 draw_pdf(pdf_ctx, n, r, a);
+
 window.addEventListener("resize", function () {
     scatter_plot.width = scatter_container.clientWidth;
     scatter_plot.height = 0.8 * scatter_container.clientWidth;
@@ -148,6 +161,7 @@ window.addEventListener("resize", function () {
     }
     draw_pdf(pdf_ctx, n, r, a);
 });
+
 sample_range.addEventListener('input', function () {
     n = Math.round(Math.pow(10, 1 + (3 / 100) * parseFloat(sample_range.value)));
     sample.textContent = n.toString();
@@ -158,6 +172,7 @@ sample_range.addEventListener('input', function () {
     }
     draw_pdf(pdf_ctx, n, r, a);
 });
+
 corr_range.addEventListener('input', function () {
     r = (2 / 100) * parseFloat(corr_range.value) - 1;
     corr.textContent = r.toFixed(2);
@@ -165,9 +180,9 @@ corr_range.addEventListener('input', function () {
     draw_scatter(scatter_ctx, Y.matmul(L.t()));
     draw_pdf(pdf_ctx, n, r, a);
 });
+
 alpha_range.addEventListener('input', function () {
     a = Math.pow(10, -(3 / 100) * (100 - parseFloat(alpha_range.value)));
     alpha.textContent = a.toFixed(3);
     draw_pdf(pdf_ctx, n, r, a);
 });
-//# sourceMappingURL=index.js.map
